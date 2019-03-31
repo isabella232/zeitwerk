@@ -16,7 +16,7 @@ module Zeitwerk::Loader::Callbacks
   # @private
   # @param dir [String]
   # @return [void]
-  def on_dir_autoloaded(dir)
+  def on_zdir_autoloaded(zdir)
     # Module#autoload does not serialize concurrent requires, and we handle
     # directories ourselves.
     #
@@ -30,14 +30,14 @@ module Zeitwerk::Loader::Callbacks
     # for child constants set, since t1 correctly deleted the lazy_dirs entry,
     # thus resulting in NameErrors when client code tries to reach them.
     mutex2.synchronize do
-      parent, cname = autoloads[dir]
+      parent, cname = autoloads[zdir]
       break if loaded_cpaths.include?(cpath(parent, cname))
 
-      autovivified_module = parent.const_set(cname, Module.new)
-      log("module #{autovivified_module.name} autovivified from directory #{dir}") if logger
+      autovivified_mod = parent.const_set(cname, Module.new)
+      log("module #{autovivified_mod.name} autovivified from directory #{zdir[2..-1]}") if logger
 
-      loaded_cpaths.add(autovivified_module.name)
-      on_namespace_loaded(autovivified_module)
+      loaded_cpaths.add(autovivified_mod.name)
+      on_namespace_loaded(autovivified_mod)
     end
   end
 

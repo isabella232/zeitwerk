@@ -460,7 +460,10 @@ module Zeitwerk
       # real path to be able to delete it from $LOADED_FEATURES on unload, and to
       # be able to do a lookup later in Kernel#require for manual require calls.
       realpath = File.realpath(abspath)
-      parent.autoload(cname, realpath)
+
+      autoload_path = ruby?(realpath) ? realpath : "z\x1f" + realpath
+      parent.autoload(cname, autoload_path)
+
       if logger
         if ruby?(realpath)
           log("autoload set for #{cpath(parent, cname)}, to be loaded from #{realpath}")
@@ -469,8 +472,8 @@ module Zeitwerk
         end
       end
 
-      autoloads[realpath] = [parent, cname]
-      Registry.register_autoload(self, realpath)
+      autoloads[autoload_path] = [parent, cname]
+      Registry.register_autoload(self, autoload_path)
 
       # See why in the documentation of Zeitwerk::Registry.inceptions.
       unless parent.autoload?(cname)

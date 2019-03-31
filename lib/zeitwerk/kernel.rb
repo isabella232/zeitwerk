@@ -8,17 +8,9 @@ module Kernel
   # already existing ancestor chains.
   alias_method :zeitwerk_original_require, :require
 
-  # @param path [String]
-  # @return [Boolean]
   def require(path)
-    if loader = Zeitwerk::Registry.loader_for(path)
-      if path.end_with?(".rb")
-        zeitwerk_original_require(path).tap do |required|
-          loader.on_file_autoloaded(path) if required
-        end
-      else
-        loader.on_dir_autoloaded(path)
-      end
+    if path.start_with?("z\x1f")
+      Zeitwerk::Registry.loader_for(path).on_zdir_autoloaded(path)
     else
       zeitwerk_original_require(path).tap do |required|
         if required

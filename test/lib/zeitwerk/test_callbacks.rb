@@ -37,19 +37,19 @@ class TestCallbacks < LoaderTest
     end
   end
 
-  test "autoloading a directory triggers on_dir_autoloaded" do
-    def loader.on_dir_autoloaded(dir)
-      if dir == File.realpath("m")
-        $on_dir_autoloaded_called = true
+  test "autoloading a directory triggers on_zdir_autoloaded" do
+    def loader.on_zdir_autoloaded(zdir)
+      if zdir == "z\x1f" + File.realpath("m")
+        $on_zdir_autoloaded_called = true
       end
       super
     end
 
     files = [["m/x.rb", "M::X = true"]]
     with_setup(files) do
-      $on_dir_autoloaded_called = false
+      $on_zdir_autoloaded_called = false
       assert M::X
-      assert $on_dir_autoloaded_called
+      assert $on_zdir_autoloaded_called
     end
   end
 end
