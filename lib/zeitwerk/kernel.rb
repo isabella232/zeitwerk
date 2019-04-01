@@ -9,6 +9,7 @@ module Kernel
   alias_method :zeitwerk_original_require, :require
 
   def require(path)
+    path = path.to_s
     if path.start_with?("z\x1f")
       Zeitwerk::Registry.loader_for(path).on_zdir_autoloaded(path)
     else
